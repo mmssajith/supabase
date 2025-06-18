@@ -1,7 +1,7 @@
 import { paths } from 'api-types'
 import apiWrapper from 'lib/api/apiWrapper'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { query } from '../_helpers'
+import { createFolder, deleteFolder, readAllSnippets, readFolders } from '../_helpers'
 
 export default (req: NextApiRequest, res: NextApiResponse) => apiWrapper(req, res, handler)
 
@@ -28,17 +28,10 @@ type GetRequestData =
   paths['/platform/projects/{ref}/content/folders']['get']['parameters']['query']
 
 const handleGetAll = async (req: NextApiRequest, res: NextApiResponse<GetResponseData>) => {
-  const params = req.query as GetRequestData
+  const folders = await readFolders()
+  const snippets = (await readAllSnippets()).filter((s) => s.folder_id === null)
 
-  const folders = await query(`SELECT * FROM public.folders`, req.headers)
-
-  const snippetsData = await query(
-    `SELECT * FROM public.snippets WHERE content->>'folder_id' IS NULL`,
-    req.headers
-  )
-  const snippets = snippetsData.map((d) => d.content)
-
-  res.status(200).json({ data: { folders: folders, contents: snippets } })
+  res.status(200).json({ data: { folders, contents: snippets } })
 }
 
 type PostResponseData =
@@ -49,18 +42,19 @@ type PostRequestData =
 const handlePost = async (req: NextApiRequest, res: NextApiResponse<PostResponseData>) => {
   const { name, parent_id } = req.body as PostRequestData
 
-  const results = await query(
-    `INSERT INTO public.folders (name, parent_id) VALUES ('${name}', ${parent_id ? `'${parent_id}'` : 'NULL'}) RETURNING *`,
-    req.headers
-  )
+  const folder = await createFolder({
+    name,
+    parent_id: parent_id || null,
+    owner_id: 1,
+    project_id: 1,
+  })
 
-  return res.status(200).json(results[0])
+  return res.status(200).json(folder)
 }
 
 const handleDelete = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query
-  const result = await query(`DELETE FROM public.folders WHERE id = ${id}`, req.headers)
-  console.log(result)
+  await deleteFolder(id as string)
 
   return res.status(200).json({})
 }
