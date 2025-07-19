@@ -3,10 +3,9 @@ title: Migrating within Supabase
 subtitle: Learn how to migrate from one Supabase project to another
 ---
 
-      <Admonition type="note">
-      If you are on a Paid plan and have physical backups enabled, you should instead use the [Restore
+<Admonition type="note">
 
-to another project feature](/docs/guides/platform/backups#restore-to-a-new-project)
+If you are on a Paid plan and have physical backups enabled, you should instead use the [Restore to another project feature](/docs/guides/platform/backups#restore-to-a-new-project)
 
 </Admonition>
 
@@ -16,7 +15,7 @@ to another project feature](/docs/guides/platform/backups#restore-to-a-new-proje
 
 - **Project migration only migrates the Postgres database** and anything else will need to be re-configured.
 
-### Pre-Migration Checklist
+### Pre-Migration checklist
 
     <Accordion
 
@@ -158,7 +157,7 @@ If you already have the database backup, skip to the Restore project step.
 
 ### Migrate Storage
 
-The new project has the old project's Storage buckets, but the Storage objects need to be migrated manually. If you have your storage objects locally (eg 90 day paused projects), migrate the storage objects to the new project using this [google colab script](https://colab.research.google.com/github/PLyn/supabase-storage-migrate/blob/main/Supabase_Storage_migration.ipynb).
+The new project has the old project's Storage buckets, but the Storage objects need to be migrated manually. If you have your storage objects locally (e.g. 90 day paused projects), migrate the storage objects to the new project using this [Google Colab script](https://colab.research.google.com/github/PLyn/supabase-storage-migrate/blob/main/Supabase_Storage_migration.ipynb).
 
 If the old project is still active, use this script to move storage objects from one project to another:
 
