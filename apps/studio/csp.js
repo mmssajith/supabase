@@ -58,6 +58,7 @@ const SUPABASE_ASSETS_URL =
   process.env.NEXT_PUBLIC_ENVIRONMENT === 'staging'
     ? 'https://frontend-assets.supabase.green'
     : 'https://frontend-assets.supabase.com'
+const POSTHOG_URL = 'https://ph.supabase.green'
 
 const USERCENTRICS_URLS = 'https://*.usercentrics.eu'
 const USERCENTRICS_APP_URL = 'https://app.usercentrics.eu'
@@ -89,6 +90,7 @@ module.exports.getCSP = function getCSP() {
     USERCENTRICS_URLS,
     STAPE_URL,
     GOOGLE_MAPS_API_URL,
+    POSTHOG_URL,
   ]
   const SCRIPT_SRC_URLS = [
     CLOUDFLARE_CDN_URL,
@@ -96,6 +98,7 @@ module.exports.getCSP = function getCSP() {
     STRIPE_JS_URL,
     SUPABASE_ASSETS_URL,
     STAPE_URL,
+    POSTHOG_URL,
   ]
   const FRAME_SRC_URLS = [HCAPTCHA_ASSET_URL, STRIPE_JS_URL, STAPE_URL]
   const IMG_SRC_URLS = [

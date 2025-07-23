@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    },
+    {
+      "name": "www",
+      "path": "apps/www"
+    },
+    {
+      "name": "common",
+      "path": "packages/common"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "typescript.preferences.strictNullChecks": true,
+    "typescript.preferences.strictFunctionTypes": true,
+    "files.associations": {
+      "*.tsx": "typescriptreact",
+      "*.ts": "typescript"
+    }
+  }
+}
