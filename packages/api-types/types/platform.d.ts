@@ -3391,6 +3391,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/platform/replication/{ref}/pipelines/{pipeline_id}/replication-status': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get the status of a replication pipeline. */
+    get: operations['ReplicationPipelinesController_getPipelineReplicationStatus']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/platform/replication/{ref}/pipelines/{pipeline_id}/start': {
     parameters: {
       query?: never
@@ -7352,6 +7369,41 @@ export interface components {
         name: string
         /** @description Tenant id */
         tenant_id: string
+      }[]
+    }
+    ReplicationPipelineReplicationStatusResponse: {
+      /** @description Pipeline id */
+      pipeline_id: number
+      /** @description Table statuses */
+      table_statuses: {
+        /** @description Table replication state */
+        state:
+          | {
+              /** @enum {string} */
+              name: 'queued'
+            }
+          | {
+              /** @enum {string} */
+              name: 'copying_table'
+            }
+          | {
+              /** @enum {string} */
+              name: 'copied_table'
+            }
+          | {
+              lag: number
+              /** @enum {string} */
+              name: 'following_wal'
+            }
+          | {
+              message: string
+              /** @enum {string} */
+              name: 'error'
+            }
+        /** @description Table id (internal Postgres OID) */
+        table_id: number
+        /** @description Table name */
+        table_name: string
       }[]
     }
     ReplicationPipelineResponse: {
@@ -16608,6 +16660,12 @@ export interface operations {
           'application/json': components['schemas']['GetUserContentResponse']
         }
       }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Failed to retrieve project's content */
       500: {
         headers: {
@@ -16634,6 +16692,12 @@ export interface operations {
     }
     responses: {
       200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      403: {
         headers: {
           [name: string]: unknown
         }
@@ -16672,6 +16736,12 @@ export interface operations {
           'application/json': components['schemas']['UserContentObject']
         }
       }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Failed to create project's content */
       500: {
         headers: {
@@ -16702,6 +16772,12 @@ export interface operations {
         content: {
           'application/json': components['schemas']['BulkDeleteUserContentResponse'][]
         }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
       /** @description Failed to delete project's contents */
       500: {
@@ -16734,6 +16810,12 @@ export interface operations {
         content: {
           'application/json': components['schemas']['GetContentCountV2Response']
         }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
       /** @description Failed to retrieve user's content counts */
       500: {
@@ -16772,6 +16854,12 @@ export interface operations {
           'application/json': components['schemas']['GetUserContentFolderResponse']
         }
       }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Failed to retrieve project's content root folder */
       500: {
         headers: {
@@ -16805,6 +16893,12 @@ export interface operations {
           'application/json': components['schemas']['CreateUserContentFolderResponse']
         }
       }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Failed to create project's content folder */
       500: {
         headers: {
@@ -16826,6 +16920,12 @@ export interface operations {
     requestBody?: never
     responses: {
       200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      403: {
         headers: {
           [name: string]: unknown
         }
@@ -16868,6 +16968,12 @@ export interface operations {
           'application/json': components['schemas']['GetUserContentFolderResponse']
         }
       }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Failed to retrieve project's content folder */
       500: {
         headers: {
@@ -16896,6 +17002,12 @@ export interface operations {
     }
     responses: {
       200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      403: {
         headers: {
           [name: string]: unknown
         }
@@ -16930,6 +17042,12 @@ export interface operations {
         content: {
           'application/json': components['schemas']['GetUserContentByIdResponse']
         }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
       /** @description Failed to retrieve project's content by the given id */
       500: {
@@ -18632,6 +18750,44 @@ export interface operations {
         content?: never
       }
       /** @description Failed to delete pipeline. */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  ReplicationPipelinesController_getPipelineReplicationStatus: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Pipeline id */
+        pipeline_id: number
+        /** @description Project ref */
+        ref: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Returns the pipeline replication status. */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ReplicationPipelineReplicationStatusResponse']
+        }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Failed to get pipeline replication status. */
       500: {
         headers: {
           [name: string]: unknown
