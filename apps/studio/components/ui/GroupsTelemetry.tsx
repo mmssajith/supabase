@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/nextjs'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { LOCAL_STORAGE_KEYS, useParams, useTelemetryCookie, useUser, posthogClient } from 'common'
+import { LOCAL_STORAGE_KEYS, useParams, useTelemetryCookie, useUser } from 'common'
 import { useSendGroupsIdentifyMutation } from 'data/telemetry/send-groups-identify-mutation'
 import { useSendGroupsResetMutation } from 'data/telemetry/send-groups-reset-mutation'
 import { usePrevious } from 'hooks/deprecated'
@@ -75,30 +75,10 @@ const GroupsTelemetry = ({ hasAcceptedConsent }: { hasAcceptedConsent: boolean }
 
     if (hasAcceptedConsent) {
       if (ref && (isLandingOnProjectRoute || isEnteringProjectRoute)) {
-        // Set groups client-side for PostHog
-        if (organization?.slug) {
-          posthogClient.setGroup('organization', organization.slug)
-        }
-        posthogClient.setGroup('project', ref as string)
-
-        // Continue sending to backend
         sendGroupsIdentify({ organization_slug: organization?.slug, project_ref: ref as string })
       } else if (slug && (isLandingOnOrgRoute || isEnteringOrgRoute)) {
-        // Set organization group client-side
-        posthogClient.setGroup('organization', slug)
-
-        // Continue sending to backend
         sendGroupsIdentify({ organization_slug: slug, project_ref: undefined })
       } else if (isLeavingProjectRoute || isLeavingOrgRoute) {
-        // Reset groups client-side
-        if (isLeavingOrgRoute || isLeavingProjectRoute) {
-          posthogClient.resetGroup('organization')
-        }
-        if (isLeavingProjectRoute) {
-          posthogClient.resetGroup('project')
-        }
-
-        // Continue sending to backend
         sendGroupsReset({
           reset_organization: isLeavingOrgRoute || isLeavingProjectRoute,
           reset_project: isLeavingProjectRoute,
