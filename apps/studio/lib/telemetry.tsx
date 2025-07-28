@@ -3,6 +3,7 @@ import GroupsTelemetry from 'components/ui/GroupsTelemetry'
 import { API_URL, IS_PLATFORM } from 'lib/constants'
 import { useConsentToast } from 'ui-patterns/consent'
 import { useEffect } from 'react'
+import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 
 export function Telemetry() {
   // Although this is "technically" breaking the rules of hooks
@@ -12,6 +13,13 @@ export function Telemetry() {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const user = IS_PLATFORM ? useUser() : null
+
+  // Get org from selected organization query because it's not
+  // always available in the URL params
+  const { data: organization } = useSelectedOrganizationQuery()
+
+  // Get project ref from URL params
+  const { ref } = useParams()
 
   // Initialize PostHog client when telemetry is enabled
   useEffect(() => {
@@ -34,6 +42,8 @@ export function Telemetry() {
         API_URL={API_URL}
         hasAcceptedConsent={hasAcceptedConsent}
         enabled={IS_PLATFORM}
+        organizationSlug={organization?.slug}
+        projectRef={ref}
       />
       {/* <GroupsTelemetry hasAcceptedConsent={hasAcceptedConsent} /> */}
     </>

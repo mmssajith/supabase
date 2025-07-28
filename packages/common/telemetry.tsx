@@ -12,7 +12,7 @@ import { IS_PLATFORM, LOCAL_STORAGE_KEYS } from './constants'
 import { useFeatureFlags } from './feature-flags'
 import { post } from './fetchWrappers'
 import { ensurePlatformSuffix, isBrowser } from './helpers'
-import { useTelemetryCookie } from './hooks'
+import { useParams, useTelemetryCookie } from './hooks'
 import { TelemetryEvent } from './telemetry-constants'
 import { getSharedTelemetryData } from './telemetry-utils'
 import { posthogClient } from './posthog-client'
@@ -47,14 +47,21 @@ export function handlePageTelemetry(
   featureFlags?: {
     [key: string]: unknown
   },
+  slug?: string,
+  ref?: string,
   telemetryDataOverride?: components['schemas']['TelemetryPageBodyV2']
 ) {
+
   return post(
     `${ensurePlatformSuffix(API_URL)}/telemetry/page`,
     telemetryDataOverride !== undefined
       ? { feature_flags: featureFlags, ...telemetryDataOverride }
       : {
           ...getSharedTelemetryData(pathname),
+          groups: {
+            ...(slug ? { organization: slug } : {}),
+            ...(ref ? { project: ref } : {}),
+          },
           feature_flags: featureFlags,
         },
     { headers: { Version: '2' } }
@@ -82,15 +89,24 @@ export const PageTelemetry = ({
   API_URL,
   hasAcceptedConsent,
   enabled = true,
+  organizationSlug,
+  projectRef,
 }: {
   API_URL: string
   hasAcceptedConsent: boolean
   enabled?: boolean
+  organizationSlug?: string
+  projectRef?: string
 }) => {
   const router = useRouter()
 
   const pagesPathname = router?.pathname
   const appPathname = usePathname()
+
+  // Get from props or try to extract from URL params
+  const params = useParams()
+  const slug = organizationSlug || params.slug
+  const ref = projectRef || params.ref
 
   const featureFlags = useFeatureFlags()
 
@@ -106,12 +122,19 @@ export const PageTelemetry = ({
   const sendPageTelemetry = useCallback(() => {
     if (!(enabled && hasAcceptedConsent)) return Promise.resolve()
 
+    console.log('[telemetry] sendPageTelemetry - slug:', slug, 'ref:', ref)
+    console.log('[telemetry] params:', params)
+
     // Send to PostHog client-side
     const pageData = getSharedTelemetryData(pathnameRef.current)
     posthogClient.capturePageView({
       $current_url: pageData.page_url,
       $pathname: pageData.pathname,
       $host: new URL(pageData.page_url).hostname,
+      $groups: {
+        ...(slug ? { organization: slug } : {}),
+        ...(ref ? { project: ref } : {}),
+      },
       page_title: pageData.page_title,
       ...pageData.ph,
       ...Object.fromEntries(
@@ -120,10 +143,10 @@ export const PageTelemetry = ({
     })
 
     // Continue sending to backend
-    return handlePageTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current).catch((e) => {
+    return handlePageTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current, slug, ref).catch((e) => {
       console.error('Problem sending telemetry page:', e)
     })
-  }, [API_URL, enabled, hasAcceptedConsent])
+  }, [API_URL, enabled, hasAcceptedConsent, slug, ref, pathnameRef, featureFlagsRef])
 
   const sendPageLeaveTelemetry = useCallback(() => {
     if (!(enabled && hasAcceptedConsent)) return Promise.resolve()
@@ -168,6 +191,10 @@ export const PageTelemetry = ({
             $current_url: telemetryData.page_url,
             $pathname: telemetryData.pathname,
             $host: new URL(telemetryData.page_url).hostname,
+            $groups: {
+              ...(slug ? { organization: slug } : {}),
+              ...(ref ? { project: ref } : {}),
+            },
             page_title: telemetryData.page_title,
             ...telemetryData.ph,
             ...Object.fromEntries(
@@ -175,7 +202,7 @@ export const PageTelemetry = ({
             ),
           })
 
-          handlePageTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current, telemetryData)
+          handlePageTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current, slug, ref, telemetryData)
           // remove the telemetry cookie
           document.cookie = `${TELEMETRY_DATA}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
         } catch (error) {
@@ -187,7 +214,7 @@ export const PageTelemetry = ({
 
       hasSentInitialPageTelemetryRef.current = true
     }
-  }, [router?.isReady, hasAcceptedConsent, featureFlags.hasLoaded, sendPageTelemetry])
+  }, [router?.isReady, hasAcceptedConsent, featureFlags.hasLoaded, sendPageTelemetry, slug, ref])
 
   useEffect(() => {
     // For pages router

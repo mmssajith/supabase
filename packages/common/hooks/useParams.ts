@@ -10,7 +10,6 @@
  * to mess with it lightly.
  */
 import { useRouter } from 'next/compat/router'
-import { useMemo } from 'react'
 
 /**
  * Helper to convert kebab case to camel case
@@ -49,17 +48,13 @@ export function useParams(): {
     }
   })
 
-  return useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(modifiedQuery).map(([key, value]) => {
-          if (Array.isArray(value)) {
-            return [key, value[0]]
-          } else {
-            return [key, value]
-          }
-        })
-      ),
-    [query]
+  return Object.fromEntries(
+    Object.entries(modifiedQuery).map(([key, value]) => {
+      if (Array.isArray(value)) {
+        return [key, value[0]]
+      } else {
+        return [key, value]
+      }
+    })
   )
 }
