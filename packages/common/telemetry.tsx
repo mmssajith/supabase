@@ -73,15 +73,19 @@ export function handlePageLeaveTelemetry(
   pathname: string,
   featureFlags?: {
     [key: string]: unknown
-  }
+  },
+  slug?: string,
+  ref?: string
 ) {
   return post(`${ensurePlatformSuffix(API_URL)}/telemetry/page-leave`, {
-    body: {
-      pathname,
-      page_url: isBrowser ? window.location.href : '',
-      page_title: isBrowser ? document?.title : '',
-      feature_flags: featureFlags,
-    },
+    pathname,
+    page_url: isBrowser ? window.location.href : '',
+    page_title: isBrowser ? document?.title : '',
+    feature_flags: featureFlags,
+    ...(slug || ref ? { groups: { 
+      ...(slug ? { organization: slug } : {}),
+      ...(ref ? { project: ref } : {})
+    }} : {})
   })
 }
 
@@ -160,12 +164,12 @@ export const PageTelemetry = ({
     })
 
     // Continue sending to backend
-    return handlePageLeaveTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current).catch(
+    return handlePageLeaveTelemetry(API_URL, pathnameRef.current, featureFlagsRef.current, slug, ref).catch(
       (e) => {
         console.error('Problem sending telemetry page-leave:', e)
       }
     )
-  }, [API_URL, enabled, hasAcceptedConsent])
+  }, [API_URL, enabled, hasAcceptedConsent, slug, ref])
 
   // Handle initial page telemetry event
   const hasSentInitialPageTelemetryRef = useRef(false)
