@@ -6,7 +6,6 @@ import { RoleImpersonationPopover } from 'components/interfaces/RoleImpersonatio
 import DatabaseSelector from 'components/ui/DatabaseSelector'
 import { useLocalStorageQuery } from 'hooks/misc/useLocalStorage'
 import { IS_PLATFORM } from 'lib/constants'
-import { detectOS } from 'lib/helpers'
 import { useSqlEditorV2StateSnapshot } from 'state/sql-editor-v2'
 import {
   Button,
@@ -27,7 +26,6 @@ export type UtilityActionsProps = {
   id: string
   isExecuting?: boolean
   isDisabled?: boolean
-  hasSelection: boolean
   prettifyQuery: () => void
   executeQuery: () => void
 }
@@ -36,11 +34,9 @@ const UtilityActions = ({
   id,
   isExecuting = false,
   isDisabled = false,
-  hasSelection,
   prettifyQuery,
   executeQuery,
 }: UtilityActionsProps) => {
-  const os = detectOS()
   const { ref } = useParams()
   const snapV2 = useSqlEditorV2StateSnapshot()
 
@@ -135,30 +131,33 @@ const UtilityActions = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {isFavorite ? (
-              <Button
-                type="text"
-                size="tiny"
-                onClick={removeFavorite}
-                className="px-1"
-                icon={<Heart className="fill-brand stroke-none" />}
-              />
-            ) : (
-              <Button
-                type="text"
-                size="tiny"
-                onClick={addFavorite}
-                className="px-1"
-                icon={<Heart className="fill-none stroke-foreground-light" />}
-              />
-            )}
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            {isFavorite ? 'Remove from' : 'Add to'} favorites
-          </TooltipContent>
-        </Tooltip>
+        {IS_PLATFORM && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {isFavorite ? (
+                <Button
+                  type="text"
+                  size="tiny"
+                  onClick={removeFavorite}
+                  className="px-1"
+                  icon={<Heart className="fill-brand stroke-none" />}
+                />
+              ) : (
+                <Button
+                  type="text"
+                  size="tiny"
+                  onClick={addFavorite}
+                  className="px-1"
+                  icon={<Heart className="fill-none stroke-foreground-light" />}
+                />
+              )}
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">
+              {isFavorite ? 'Remove from' : 'Add to'} favorites
+            </TooltipContent>
+          </Tooltip>
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>
